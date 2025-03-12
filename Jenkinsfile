@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Pulls the latest code from GitHub
-                git branch: 'main', url: ''
+                git branch: 'main', url: 'https://github.com/Anis1only/simple-java-app.git'
             }
         }
 
@@ -45,12 +45,12 @@ pipeline {
     post {
         success {
             // Send success notification via email or Slack
-            emailext(subject: "Build Successful", body: "The build was successful!", to: "your-email@example.com")
+            emailext(subject: "Build Successful", body: "The build was successful!", to: "anismullani0@gmail.com")
         }
 
         failure {
             // Send failure notification via email or Slack
-            emailext(subject: "Build Failed", body: "The build has failed. Please check the Jenkins logs.", to: "your-email@example.com")
+            emailext(subject: "Build Failed", body: "The build has failed. Please check the Jenkins logs.", to: "anismullani0@gmail.com")
         }
     }
 }

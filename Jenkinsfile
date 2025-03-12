@@ -1,62 +1,56 @@
 pipeline {
-    agent any  // This means the pipeline will run on any available agent
+    agent any
 
     environment {
-        MAVEN_HOME = '/usr/local/maven'  // Adjust this to where Maven is installed on your Jenkins server
+        MAVEN_HOME = '/usr/share/maven'  // Path to your Maven installation (adjust as necessary)
+        JAVA_HOME = '/usr/bin/java'    // Path to your JDK installation (adjust as necessary)
     }
 
     stages {
-        // Stage 1: Checkout the code from the repository
         stage('Checkout') {
             steps {
-                checkout scm  // This checks out the code from the Git repository
+                // Pulls the latest code from GitHub
+                git branch: 'main', url: ''
             }
         }
 
-        // Stage 2: Build the project
         stage('Build') {
             steps {
+                // Runs the Maven build
                 script {
-                    // Running the Maven build command to compile and build the project
-                    sh "'$MAVEN_HOME/bin/mvn' clean install -DskipTests=true"
+                    sh "${MAVEN_HOME}/bin/mvn clean install"
                 }
             }
         }
 
-        // Stage 3: Run tests
         stage('Test') {
             steps {
+                // Run unit tests using Maven
                 script {
-                    // Running the Maven test command to run unit tests (JUnit or TestNG)
-                    sh "'$MAVEN_HOME/bin/mvn' test"
+                    sh "${MAVEN_HOME}/bin/mvn test"
                 }
             }
         }
 
-        // Stage 4: Package the application
         stage('Package') {
             steps {
+                // Package the application using Maven (if tests pass)
                 script {
-                    // Running Maven package command to create the .jar or .war file
-                    sh "'$MAVEN_HOME/bin/mvn' package"
+                    sh "${MAVEN_HOME}/bin/mvn package"
                 }
             }
         }
     }
 
-    // Post actions after the build completes
     post {
-        always {
-            // Archive the test results (JUnit test reports)
-            junit '**/target/test-*.xml'
-        }
         success {
-            // Notify or take any action on success
-            echo 'Build, Test, and Package Succeeded!'
+            // Send success notification via email or Slack
+            emailext(subject: "Build Successful", body: "The build was successful!", to: "your-email@example.com")
         }
+
         failure {
-            // Notify or take any action on failure
-            echo 'Build Failed!'
+            // Send failure notification via email or Slack
+            emailext(subject: "Build Failed", body: "The build has failed. Please check the Jenkins logs.", to: "your-email@example.com")
         }
     }
 }
